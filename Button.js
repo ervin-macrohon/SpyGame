@@ -4,7 +4,8 @@ import s from './Style'
 
 export const Button = (props) => {
     return (
-        <TouchableOpacity onPress={()=>props.onPress()}>
+        <TouchableOpacity onPress={()=>props.onPress()}
+            disabled={props.disabled}>
             <View style={[s.button, props.buttonStyle]}>
                 <Text style={[s.button_text, props.buttonTextStyle]}>
                     {props.label}

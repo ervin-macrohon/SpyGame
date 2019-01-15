@@ -13,13 +13,17 @@ export default class JoinRoomForm extends Component{
           fontWeight: 'bold',
           fontSize: 28
         },
+        headerLeft: null,
+        gesturesEnabled: false
     };
 
     state = {
         nickname: '',
         roomNumber: '',
         numberInputStyle: null,
-        errorMessage: ''
+        nicknameInputStyle: null,
+        errorMessage: '',
+        buttonText: 'Join'
     }
 
     handleNicknameChange = (value) => {
@@ -30,11 +34,65 @@ export default class JoinRoomForm extends Component{
         this.setState({roomNumber: value});
     }
 
-    submit = () => {
-        if (this.validateNumber()){
-            console.log('submitted request with ', this.state)
+    submit = async () => {
+        if (!this.validateNumber() || !this.validateNickname()){
+            return;
+        }
+        this.setState({
+            buttonText: 'Loading...',
+            buttonDisabled: true
+        });
+        await this.joinRoom();
+    }
+
+    enableButton = () => {
+        this.setState({
+            buttonText: 'Join',
+            buttonDisabled: false
+        });
+    }
+
+    joinRoom = async () => {
+        try{
+            let response = await fetch(
+                'https://spygame-em.herokuapp.com/room/' + this.state.roomNumber + '/' + this.state.nickname, 
+                {
+                    method: 'PUT'
+                }
+            );
+            let responseJson = await response.json();
+            if (response.status === 200){
+                this.props.navigation.navigate('lobby', {
+                    roomId: this.state.roomNumber,
+                    nickname: this.state.nickname
+                })
+            }else{
+                this.setState({errorMessage: responseJson.message});
+                this.enableButton();
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    validateNickname = () => {
+        if( /[^a-zA-Z0-9]/.test( this.state.nickname ) ) {
+            this.setState({
+                nicknameInputStyle: s.red_shadow,
+                errorMessage: 'Error: nickname needs to be alphanumeric'
+            })
+            return false;
+        }else if (this.state.nickname.length !== 3){
+            this.setState({
+                nicknameInputStyle: s.red_shadow,
+                errorMessage: 'Error: nickname needs to be exactly 3 character long'
+            })
+            return false;
         }else{
-            console.log('invalid field');
+            this.setState({
+                nicknameInputStyle: null
+            });
+            return true;
         }
     }
 
@@ -58,13 +116,14 @@ export default class JoinRoomForm extends Component{
             <View style={[s.background, s.room_form_container]}>
                 <View style={s.form}>
                     <TextInput 
-                        style={s.input_box}
+                        style={[s.input_box, this.state.nicknameInputStyle]}
                         placeholder="Nickname"
                         spellCheck={false}
                         autoCorrect={false}
                         autoCapitalize='none'
                         value={this.state.nickname}
                         onChangeText={this.handleNicknameChange}
+                        onBlur={this.validateNickname}
                         />
                     <TextInput 
                         style={[s.input_box, this.state.numberInputStyle]}
@@ -75,14 +134,15 @@ export default class JoinRoomForm extends Component{
                         value={this.state.roomNumber}
                         onChangeText={this.handleRoomNumberChange}
                         keyboardType='numeric'
-                        onBlur={() => this.validateNumber()}
+                        onBlur={this.validateNumber}
                         />
-                    <Text style={{color: 'red'}}>
+                    <Text style={s.error_message}>
                         {this.state.errorMessage}
                     </Text>
                     <Button 
                         onPress={this.submit}
-                        label="Join"/>
+                        label={this.state.buttonText}
+                        buttonDisabled={this.state.buttonDisabled}/>
                 </View>
             </View>
         );
