@@ -126,9 +126,8 @@ export default class CreateRoomForm extends Component{
             );
             if (response.status === 200){
                 let responseJson = await response.json();
-                console.log(responseJson);
             }else{
-                console.log(response.statusText);
+                console.error(response.message);
             }
         } catch (error) {
             console.error(error);

@@ -9,7 +9,6 @@ import { Avatar } from 'react-native-elements';
 export const PlayerAvatar = (props) => {
     return (
         <View style={s.avatar_spacing}>
-            {console.log('child has been rendered with ', props.style)}
             <TouchableOpacity
                 delayPressIn={0}
                 delayPressOut={0}

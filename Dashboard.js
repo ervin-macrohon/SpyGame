@@ -60,7 +60,7 @@ export default class Dashboard extends Component {
                });
                this.calculateInitialValues()
            }else{
-               console.log(response.statusText);
+               console.error(response.message);
            }
        } catch (error) {
            console.error(error);
@@ -68,7 +68,6 @@ export default class Dashboard extends Component {
     }
 
     calculateInitialValues = () => {
-        console.log('players', this.state.players);
         this.checkProposeButton();
         this.calculateMissionRequirements();
     }
@@ -85,15 +84,65 @@ export default class Dashboard extends Component {
                    scorecard: responseJson.scorecard
                });
            }else{
-               console.log(response.statusText);
+               console.error(response.message);
            }
        } catch (error) {
            console.error(error);
        }
    }
 
-   submitProposition = () => {
-        console.log('submitting: ', this.state.chosenAvatarStyleList);
+   urlBuilder = (roomId, nickname, command, proposedPlayers) => {
+       return 'https://spygame-em.herokuapp.com/state/' 
+           + roomId
+           + '?'
+           + `nickname=${nickname}&`
+           + `command=${command}&`
+           + this.proposedPlayersStringBuilder(proposedPlayers);
+   }
+
+   proposedPlayersStringBuilder = (players) => {
+        if (players == null || players.length == 0){
+            return '';
+        }else{
+            var playersString = `proposedPlayers=${players[0]}`;
+            for (let i = 1; i < players.length; i++){
+                playersString = playersString + `&proposedPlayers=${players[i]}`;
+            }
+            return playersString;
+        }
+   }
+
+   createProposedPlayersString = () => {
+        let styleArray = this.state.chosenAvatarStyleList;
+        let proposedPlayersString = [];
+        for (let i = 0; i < styleArray.length; i++){
+            if (styleArray[i] == s.chosen_avatar){
+                proposedPlayersString.push(this.state.players[i]);
+            }
+        }
+
+        return proposedPlayersString;
+   }
+
+   submitProposition = async () => {
+        try {
+            let url = this.urlBuilder(this.props.navigation.state.params.roomId,
+                this.props.navigation.state.params.nickname,
+                'propose',
+                this.createProposedPlayersString());
+            let response = await fetch(url, 
+                {
+                    method: 'PUT'
+                }
+            );
+            let responseJson = await response.json();
+
+            if (response.status !== 200){
+                console.error(responseJson.message);
+            }
+        } catch (error) {
+            console.error(error);
+        }
    }
 
    checkProposeButton = () => {
@@ -107,7 +156,6 @@ export default class Dashboard extends Component {
 
     calculateMissionRequirements = () => {
         let calculatedMissionReq = null;
-        console.log('length', this.state.players.length);
         switch(this.state.players.length){
             case 5:
                 calculatedMissionReq = [2, 3, 2, 3, 3];
@@ -157,12 +205,11 @@ export default class Dashboard extends Component {
 
     toggleChosenAvatarStyle = (nickname) => {
         let playerIndex = this.state.players.indexOf(nickname);
-        console.log('playerIndex', playerIndex);
         let original = this.state.chosenAvatarStyleList;
         this.setState({
             chosenAvatarStyleList: this.updateArray(original, playerIndex, this.not(original[playerIndex])),
             players: this.updateArray(this.state.players, -1, new Date().toLocaleString())
-        }, () => console.log(this.state.chosenAvatarStyleList));
+        });
     }
 
     updateArray = (original, index, updatedValue) => {
@@ -174,7 +221,6 @@ export default class Dashboard extends Component {
                 newArray[i] = original[i];
             }
         }
-        console.log('new array', newArray);
         return newArray;
     }
 
@@ -198,7 +244,6 @@ export default class Dashboard extends Component {
 
                     <View style={s.player_chooser}>
                         {this.createChosenAvatarStyleList()}
-                        {console.log('re-render has happened', this.state.chosenAvatarStyleList)}
                         <FlatList 
                             data={this.state.players}
                             renderItem={({ item }) => 
