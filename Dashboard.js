@@ -9,7 +9,7 @@ import s from './Style';
 import Image from 'react-native-scalable-image';
 import { Button } from './Button';
 import { Scorecard } from './Scorecard';
-import PlayerAvatar from './PlayerAvatar';
+import { PlayerAvatar } from './PlayerAvatar';
 import FlipCard from 'react-native-flip-card';
 import cardBack from './assets/card.png';
 import { Avatar } from 'react-native-elements';
@@ -204,24 +204,29 @@ export default class Dashboard extends Component {
                         <FlatList 
                             data={this.state.players}
                             renderItem={({ item }) => 
-                                <View style={s.avatar_spacing}>
-                                    <TouchableOpacity
-                                        delayPressIn={0}
-                                        delayPressOut={0}
-                                        onPress={() => this.toggleChosenAvatarStyle(item)}>
-                                        {/* <Avatar
-                                            medium
-                                            rounded
-                                            title={item}
-                                            activeOpacity={0.7}
-                                            containerStyle={() => this.getContainerStyle(item)}
-                                            /> */}
-                                        <PlayerAvatar
-                                            style={this.getContainerStyle(item)}
-                                            title={item}
-                                            />
-                                    </TouchableOpacity>
-                                </View>
+                                // <View style={s.avatar_spacing}>
+                                //     <TouchableOpacity
+                                //         delayPressIn={0}
+                                //         delayPressOut={0}
+                                //         onPress={() => this.toggleChosenAvatarStyle(item)}>
+                                //         {/* <Avatar
+                                //             medium
+                                //             rounded
+                                //             title={item}
+                                //             activeOpacity={0.7}
+                                //             containerStyle={() => this.getContainerStyle(item)}
+                                //             /> */}
+                                //         <PlayerAvatar
+                                //             style={this.getContainerStyle(item)}
+                                //             title={item}
+                                //             />
+                                //     </TouchableOpacity>
+                                // </View>
+                                <PlayerAvatar 
+                                    nickname={item}
+                                    onPress={this.toggleChosenAvatarStyle}
+                                    getContainerStyle={this.getContainerStyle}
+                                    />
                             }
                             horizontal={true}
                             scrollEnabled={true}
