@@ -9,6 +9,7 @@ import { Avatar } from 'react-native-elements';
 export const PlayerAvatar = (props) => {
     return (
         <View style={s.avatar_spacing}>
+            {console.log('child has been rendered with ', props.style)}
             <TouchableOpacity
                 delayPressIn={0}
                 delayPressOut={0}
@@ -18,7 +19,7 @@ export const PlayerAvatar = (props) => {
                     rounded
                     title={props.nickname}
                     activeOpacity={0.7}
-                    containerStyle={() => props.getContainerStyle(props.nickname)}
+                    containerStyle={props.style}
                     />
             </TouchableOpacity>
         </View>

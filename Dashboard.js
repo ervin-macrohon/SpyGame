@@ -145,13 +145,23 @@ export default class Dashboard extends Component {
         }));
     }
 
+    not = (style) => {
+        if (style === s.not_chosen_avatar){
+            return s.chosen_avatar;
+        }else if (style === s.chosen_avatar){
+            return s.not_chosen_avatar;
+        }else{
+            return null;
+        }
+    }
+
     toggleChosenAvatarStyle = (nickname) => {
         let playerIndex = this.state.players.indexOf(nickname);
         console.log('playerIndex', playerIndex);
         let original = this.state.chosenAvatarStyleList;
         this.setState({
-            chosenAvatarStyleList: this.updateArray(original, playerIndex, !original[playerIndex]),
-            random: true
+            chosenAvatarStyleList: this.updateArray(original, playerIndex, this.not(original[playerIndex])),
+            players: this.updateArray(this.state.players, -1, new Date().toLocaleString())
         }, () => console.log(this.state.chosenAvatarStyleList));
     }
 
@@ -172,21 +182,9 @@ export default class Dashboard extends Component {
         if (this.state.chosenAvatarStyleList == null){
             let newArray = [];
             for(let i = 0; i < this.state.players.length; i++){
-                newArray.push(false);
+                newArray.push(s.not_chosen_avatar);
             }
             this.setState({chosenAvatarStyleList: newArray});
-        }
-    }
-
-    getContainerStyle = (nickname) => {
-        let playerIndex = this.state.players.indexOf(nickname);
-        console.log('container style: player index', playerIndex);
-        let chosenAtIndex = this.state.chosenAvatarStyleList[playerIndex];
-        console.log('container style: chosen at index', this.state.chosenAvatarStyleList);
-        if (chosenAtIndex){
-            return s.chosen_avatar;
-        } else{
-            return s.not_chosen_avatar;
         }
     }
 
@@ -204,28 +202,10 @@ export default class Dashboard extends Component {
                         <FlatList 
                             data={this.state.players}
                             renderItem={({ item }) => 
-                                // <View style={s.avatar_spacing}>
-                                //     <TouchableOpacity
-                                //         delayPressIn={0}
-                                //         delayPressOut={0}
-                                //         onPress={() => this.toggleChosenAvatarStyle(item)}>
-                                //         {/* <Avatar
-                                //             medium
-                                //             rounded
-                                //             title={item}
-                                //             activeOpacity={0.7}
-                                //             containerStyle={() => this.getContainerStyle(item)}
-                                //             /> */}
-                                //         <PlayerAvatar
-                                //             style={this.getContainerStyle(item)}
-                                //             title={item}
-                                //             />
-                                //     </TouchableOpacity>
-                                // </View>
                                 <PlayerAvatar 
                                     nickname={item}
                                     onPress={this.toggleChosenAvatarStyle}
-                                    getContainerStyle={this.getContainerStyle}
+                                    style={this.state.chosenAvatarStyleList[this.state.players.indexOf(item)]}
                                     />
                             }
                             horizontal={true}
